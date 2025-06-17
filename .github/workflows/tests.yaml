@@ -19,7 +19,7 @@ jobs:
           make shellcheck
   codetests:
     name: General Tests
-    runs-on: windows-2022
+    runs-on: windows-latest
     needs: sctests
     steps:
       - name: Set git to use LF
