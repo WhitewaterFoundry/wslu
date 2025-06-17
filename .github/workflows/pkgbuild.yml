@@ -43,7 +43,7 @@ jobs:
       - name: deploy to the dev
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PGW_DEV_DEPLOY_KEY }}
-        run: package_cloud push --verbose whitewaterfoundry/wslu-dev/debian/bookworn ./PengwinDEBs/*.deb
+        run: package_cloud push --verbose whitewaterfoundry/wslu-dev/debian/bookworm ./PengwinDEBs/*.deb
   rpmcoprbuild:
     name: RPM Build
     runs-on: ubuntu-22.04
