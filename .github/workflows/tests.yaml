@@ -28,7 +28,7 @@ jobs:
           git config --global core.autocrlf false
           git config --global core.eol lf
       - uses: actions/checkout@v4
-      - uses: Vampire/setup-wsl@v1.2.0
+      - uses: Vampire/setup-wsl@v5
         with:
           distribution: Debian
           update: 'true'
