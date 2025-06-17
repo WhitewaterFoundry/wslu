@@ -21,15 +21,12 @@ jobs:
       - name: Build Debian Package
         run: |
           git clone https://github.com/wslutilities/wslu-debian builder
-          cd builder/
+          cd ./builder
           bash ./build.sh latest pengwin
-          cd ../
-          mkdir -p ./pkgs
-          mv ../wsl*.* ./pkgs
       - uses: actions/upload-artifact@v4
         with:
           name: PengwinDEBs
-          path: pkgs
+          path: builder/pkgs
   pgwspdeploy:
     name: Pengwin Deploying
     needs: pgwbuild
@@ -91,4 +88,5 @@ jobs:
       - name: deploy to the dev
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PGW_DEV_DEPLOY_KEY }}
-        run: package_cloud --verbose push whitewaterfoundry/wslu/fedora/42 ./COPRRPMs/*.rpm
+        run: package_cloud push --verbose whitewaterfoundry/wslu/fedora/42 ./COPRRPMs/*.rpm
+        
