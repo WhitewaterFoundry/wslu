@@ -6,12 +6,12 @@ on:
       - v3.*
   workflow_dispatch:
 jobs:
-  #tests:
-    #uses: ./.github/workflows/tests.yaml
+  tests:
+    uses: ./.github/workflows/tests.yaml
   pgwbuild:
     name: Pengwin
     runs-on: ubuntu-22.04
-    #needs: tests
+    needs: tests
     steps:
       - uses: actions/checkout@v4
       - name: Install Pre-requisites
@@ -45,7 +45,7 @@ jobs:
         run: package_cloud push whitewaterfoundry/wslu/debian/bookworm ./PengwinDEBs/*.deb
   rpmcoprbuild:
     name: RPM Build
-    #needs: tests
+    needs: tests
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
