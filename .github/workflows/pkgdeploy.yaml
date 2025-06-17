@@ -10,9 +10,10 @@ jobs:
     #uses: ./.github/workflows/tests.yaml
   pgwbuild:
     name: Pengwin
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     #needs: tests
     steps:
+      - uses: actions/checkout@v4
       - name: Install Pre-requisites
         run: |
           sudo apt-get update -qq
@@ -20,16 +21,19 @@ jobs:
       - name: Build Debian Package
         run: |
           git clone https://github.com/wslutilities/wslu-debian builder
-          cd ./builder
+          cd builder/
           bash ./build.sh latest pengwin
+          cd ../
+          mkdir -p ./pkgs
+          mv ../wsl*.* ./pkgs
       - uses: actions/upload-artifact@v4
         with:
           name: PengwinDEBs
-          path: builder/pkgs
+          path: pkgs
   pgwspdeploy:
     name: Pengwin Deploying
     needs: pgwbuild
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     container: cimg/ruby:2.7
     steps:
       - name: Retrive package for deployment
@@ -38,18 +42,14 @@ jobs:
           name: PengwinDEBs
           path: PengwinDEBs
       - run: gem install package_cloud
-      - name: deploy to bullseye repo
-        env:
-          PACKAGECLOUD_TOKEN: ${{ secrets.PGW_DEV_DEPLOY_KEY }}
-        run: package_cloud push whitewaterfoundry/wslu/debian/bullseye ./PengwinDEBs/*.deb --skip-errors
       - name: deploy to bookworm 
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PGW_DEV_DEPLOY_KEY }}
-        run: package_cloud push whitewaterfoundry/wslu/debian/bookworm ./PengwinDEBs/*.deb --skip-errors
+        run: package_cloud push whitewaterfoundry/wslu/debian/bookworm ./PengwinDEBs/*.deb
   rpmcoprbuild:
-    name: RPM - Cool Other Package Repo
+    name: RPM Build
     #needs: tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - name: Install Pre-requisites
@@ -76,3 +76,19 @@ jobs:
         with:
           name: COPRRPMs
           path: compiled_rpms
+  rpmdeploy:
+    name: RPM Deploy
+    needs: rpmcoprbuild
+    runs-on: ubuntu-22.04
+    container: cimg/ruby:2.7
+    steps:
+      - name: Retrive package for deployment
+        uses: actions/download-artifact@v4
+        with:
+          name: COPRRPMs
+          path: COPRRPMs
+      - run: gem install package_cloud
+      - name: deploy to the dev
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PGW_DEV_DEPLOY_KEY }}
+        run: package_cloud --verbose push whitewaterfoundry/wslu/fedora/42 ./COPRRPMs/*.rpm
