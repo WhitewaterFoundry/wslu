@@ -88,5 +88,11 @@ jobs:
       - name: deploy to the dev
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PGW_DEV_DEPLOY_KEY }}
-        run: package_cloud push --verbose whitewaterfoundry/wslu/fedora/42 ./COPRRPMs/*.rpm
+        run: |
+          package_cloud push --verbose whitewaterfoundry/wslu/fedora/40 ./COPRRPMs/*.rpm
+          package_cloud push --verbose whitewaterfoundry/wslu/fedora/41 ./COPRRPMs/*.rpm
+          package_cloud push --verbose whitewaterfoundry/wslu/fedora/42 ./COPRRPMs/*.rpm
+          package_cloud push --verbose whitewaterfoundry/wslu/el/7 ./COPRRPMs/*.rpm
+          package_cloud push --verbose whitewaterfoundry/wslu/el/8 ./COPRRPMs/*.rpm
+          package_cloud push --verbose whitewaterfoundry/wslu/el/9 ./COPRRPMs/*.rpm
         
