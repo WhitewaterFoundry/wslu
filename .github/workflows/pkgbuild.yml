@@ -64,62 +64,6 @@ jobs:
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PGW_DEV_DEPLOY_KEY }}
         run: package_cloud push whitewaterfoundry/wslu/debian/bullseye ./PengwinDEBs/*.deb --skip-errors
-  rpmobsbuild:
-    name: RPM - OpenSUSE Build Service
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Pre-requisites
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -qq build-essential tar
-      - name: configure
-        run: |
-          bash ./configure.sh --rpm obs_canary
-          cp extras/build/rpm/obs/wslu.spec ../wslu-canary.spec
-          rm -rf *
-          mkdir -p SOURCES
-          mkdir -p SPECS
-          cp ../wslu-*.tar.gz SOURCES
-          cp ../wslu-canary.spec SPECS
-      - name: rpmbuild
-        uses: ./.github/actions/rpmbuild/
-      - name: moving files
-        run: |
-          mkdir obs_res
-          cp ../wslu-*.tar.gz obs_res
-          cp ../wslu-canary.spec obs_res
-      - uses: actions/upload-artifact@v4
-        with:
-          name: OBS_RES
-          path: obs_res
-  obsdeploy:
-    name: OpenSUSE Build Service Deploying
-    needs: rpmobsbuild
-    runs-on: ubuntu-latest
-    steps:
-        - name: Retrive package for deployment
-          uses: actions/download-artifact@v4
-          with:
-            name: OBS_RES
-            path: OBS_RES
-        - name: Install Pre-requisites
-          run: |
-            sudo apt-get update -qq
-            sudo apt-get install -qq osc python3-m2crypto
-        - name: Install API token for osc
-          env:
-            API_TOKEN_CONTENT: ${{ secrets.OBS_API_TOKEN }}
-          run: |
-            mkdir -p "$HOME/.config/osc"
-            echo -e "[general]\napiurl = https://api.opensuse.org\n[https://api.opensuse.org]\nuser = wslutilities\npass = $API_TOKEN_CONTENT" > "$HOME/.config/osc/oscrc"
-        - name: Uploading OBS source files
-          run: |
-            osc checkout home:wslutilities
-            cp OBS_RES/* home:wslutilities/wslu-canary/
-            cd home:wslutilities/wslu-canary/
-            osc addremove
-            osc commit -m "Build at $(date)"
   rpmcoprbuild:
     name: RPM - Cool Other Package Repo
     runs-on: ubuntu-22.04
@@ -145,31 +89,23 @@ jobs:
           mkdir compiled_rpms
           cp SRPMS/* compiled_rpms
           cp RPMS/noarch/* compiled_rpms
-        #uses: robertdebock/rpmbuild-action@1.1.1
       - uses: actions/upload-artifact@v4
         with:
           name: COPRRPMs
           path: compiled_rpms
-  coprdeploy:
-    name: Cool Other Package Repo Deploying
+  rpmdeploy:
+    name: RPM Deploy
     needs: rpmcoprbuild
-    container: fedora:latest
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    container: cimg/ruby:2.7
     steps:
-        - name: Retrive package for deployment
-          uses: actions/download-artifact@v4
-          with:
-            name: COPRRPMs
-            path: COPRRPMs
-        - name: Install API token for copr-cli
-          env:
-            API_TOKEN_CONTENT: ${{ secrets.COPR_API_TOKEN }}
-          run: |
-            mkdir -p "$HOME/.config"
-            echo "$API_TOKEN_CONTENT" > "$HOME/.config/copr"
-        - name: Install tooling for source RPM build
-          run: |
-            dnf -y install @development-tools @rpm-development-tools
-            dnf -y install copr-cli make
-        - name: Submit the build by uploading the source RPM
-          run: copr-cli build wslutilities/wslu-canary COPRRPMs/*.src.rpm
+      - name: Retrive package for deployment
+        uses: actions/download-artifact@v4
+        with:
+          name: COPRRPMs
+          path: COPRRPMs
+      - run: gem install package_cloud
+      - name: deploy to the dev
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PGW_DEV_DEPLOY_KEY }}
+        run: package_cloud push whitewaterfoundry/wslu/fedora/42 ./COPRRPMs/*.rpm --skip-errors
