@@ -43,7 +43,7 @@ jobs:
       - name: deploy to the dev
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PGW_DEV_DEPLOY_KEY }}
-        run: package_cloud push whitewaterfoundry/wslu/debian/bookworn ./PengwinDEBs/*.deb --skip-errors
+        run: package_cloud --verbose push whitewaterfoundry/wslu/debian/bookworn ./PengwinDEBs/*.deb --skip-errors
   rpmcoprbuild:
     name: RPM Build
     runs-on: ubuntu-22.04
@@ -88,4 +88,4 @@ jobs:
       - name: deploy to the dev
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PGW_DEV_DEPLOY_KEY }}
-        run: package_cloud push whitewaterfoundry/wslu/fedora/42 ./COPRRPMs/*.rpm --skip-errors
+        run: package_cloud --verbose push whitewaterfoundry/wslu/fedora/42 ./COPRRPMs/*.rpm --skip-errors
