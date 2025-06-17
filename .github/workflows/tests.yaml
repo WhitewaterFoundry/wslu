@@ -33,6 +33,7 @@ jobs:
           distribution: Debian
           update: 'true'
           set-as-default: 'true'
+          use-cache: 'false'
           additional-packages:
             gzip
             make
