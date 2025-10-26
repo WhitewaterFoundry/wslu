@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: Vampire/setup-wsl@v6
         with:
-          distribution: Debian
+          distribution: Ubuntu-24.04
           update: 'true'
           set-as-default: 'true'
           use-cache: 'false'
