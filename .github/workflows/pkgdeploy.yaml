@@ -43,6 +43,10 @@ jobs:
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PGW_DEV_DEPLOY_KEY }}
         run: package_cloud push whitewaterfoundry/wslu/debian/bookworm ./PengwinDEBs/*.deb
+      - name: deploy to trixie 
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PGW_DEV_DEPLOY_KEY }}
+        run: package_cloud push whitewaterfoundry/wslu/debian/trixie ./PengwinDEBs/*.deb
   rpmcoprbuild:
     name: RPM Build
     needs: tests
