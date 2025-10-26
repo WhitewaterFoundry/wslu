@@ -285,7 +285,8 @@ function winps_exec {
 	debug_echo "winps_exec: called with command $*"
 	if [[ "$WSLU_POWERSHELL_CHCP_WORKAROUND" == "true" ]]; then
 		wslutmpbuild="$(wslu_get_build)"
-		local cp="$(cat "${wslu_state_dir}"/oemcp)"
+		local cp
+    cp="$(cat "${wslu_state_dir}"/oemcp)"
     if [[ -z "$cp" ]]; then
       var_gen
       cp="$(cat "${wslu_state_dir}"/oemcp)"
